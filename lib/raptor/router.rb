@@ -39,13 +39,15 @@ module Raptor
   class BuildsRoutes
     def initialize(resource)
       @resource = resource
-      @routes = []
+      @raw_routes = []
     end
 
     def build(&block)
       instance_eval(&block)
-      ValidatesRoutes.validate!(@routes)
-      @routes
+      ValidatesRoutes.validate!(@raw_routes)
+      @raw_routes.map do |raw|
+        Route.for_resource(@resource, raw.action, raw.http_method, raw.path, raw.params)
+      end
     end
 
     def show(params={})
@@ -95,12 +97,13 @@ module Raptor
     end
 
     def route(action, http_method, path, params={})
-      Raptor::ValidatesRoutes.validate_route_params!(params)
       route = Route.for_resource(@resource, action, http_method, path, params)
-      @routes << route
+      @raw_routes << RawRoute.new(action, http_method, path, params)
       route
     end
   end
+
+  RawRoute = Struct.new(:action, :http_method, :path, :params)
 
   class RouteOptions
     def initialize(resource, params)
