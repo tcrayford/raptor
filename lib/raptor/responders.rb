@@ -6,7 +6,7 @@ module Raptor
       @text = text
     end
 
-    def respond(record, inference)
+    def respond(delegate_result, inference)
       Rack::Response.new(@text)
     end
   end
@@ -17,13 +17,13 @@ module Raptor
       @target_route_name = target_route_name
     end
 
-    def respond(record, inference)
+    def respond(delegate_result, inference)
       response = Rack::Response.new
       path = @resource.routes.route_named(@target_route_name).path
-      if record
+      if delegate_result
         path = path.gsub(/:\w+/) do |match|
           # XXX: Untrusted send
-          record.send(match.sub(/^:/, '')).to_s
+          delegate_result.send(match.sub(/^:/, '')).to_s
         end
       end
       redirect_to(response, path)
@@ -44,8 +44,8 @@ module Raptor
       @template_path = template_path
     end
 
-    def respond(record, inference)
-      presenter = create_presenter(record, inference)
+    def respond(delegate_result, inference)
+      presenter = create_presenter(delegate_result, inference)
       Rack::Response.new(render(presenter))
     end
 
@@ -57,8 +57,8 @@ module Raptor
       "#{@template_path}.html.erb"
     end
 
-    def create_presenter(record, inference)
-      inference = inference.add_record(record)
+    def create_presenter(delegate_result, inference)
+      inference = inference.add_record(delegate_result)
       inference.call(presenter_class.method(:new))
     end
 
@@ -74,11 +74,11 @@ module Raptor
       @template_name = template_name
     end
 
-    def respond(record, inference)
+    def respond(delegate_result, inference)
       responder = TemplateResponder.new(@resource,
                                         @presenter_name,
                                         template_path)
-      responder.respond(record, inference)
+      responder.respond(delegate_result, inference)
     end
 
     def template_path

@@ -41,11 +41,11 @@ describe Raptor::ActionTemplateResponder do
     resource = stub(:path_component => "posts",
                     :one_presenter => APresenter)
     responder = ActionTemplateResponder.new(resource, :one, :show)
-    record = stub
+    domain_result = stub
     inference = Inference.new({})
     Template.stub(:render).with(APresenter.new, "posts/show.html.erb").
       and_return("it worked")
-    response = responder.respond(record, inference)
+    response = responder.respond(domain_result, inference)
     response.body.join.strip.should == "it worked"
   end
 end

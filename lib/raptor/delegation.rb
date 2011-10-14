@@ -30,9 +30,9 @@ module Raptor
       return nil if @delegate_name.nil?
       Raptor.log("Delegating to #{@delegate_name}")
       inference = inference(request, route_path)
-      record = inference.call(delegate_method)
-      Raptor.log("Delegate returned #{record}")
-      record
+      delegate_result = inference.call(delegate_method)
+      Raptor.log("Delegate returned #{delegate_result}")
+      delegate_result
     end
 
     def delegate_method

@@ -190,9 +190,9 @@ module Raptor
     end
 
     def respond_to_request(request)
-      record = @delegator.delegate(request, @path)
+      delegate_result = @delegator.delegate(request, @path)
       inference = Inference.for_request(request, @path)
-      @responder.respond(record, inference)
+      @responder.respond(delegate_result, inference)
     end
 
     def action_for_exception(e)

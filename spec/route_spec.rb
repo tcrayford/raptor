@@ -4,7 +4,7 @@ require_relative "../lib/raptor"
 require_relative "fake_resources"
 
 describe Raptor::Router do
-  it "routes requests through the record, presenter, and template" do
+  it "routes requests through the domain object, presenter, and template" do
     request = request('GET', '/post/5')
     rendered = FakeResources::Post::Routes.call(request)
     rendered.body.join('').strip.should == "It's FIRST POST!"
@@ -233,7 +233,6 @@ describe Raptor::Router do
   it "tunnels DELETEs over POSTs"
   it "stores templates in templates directory, not views"
   it "allows overriding of the presenter class"
-  it "uses consistent degelate terminology instead of sometimes calling them records"
   it "doesn't require .html.erb on template names"
   it "uses injector terminology, not inference terminology"
 end
