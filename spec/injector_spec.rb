@@ -64,6 +64,18 @@ describe Raptor::Injector do
     injector_with_route_path.call(method).should == "5"
   end
 
+  it "warns when there are naming conflicts" do
+    conflict = Raptor::Injectables::Fixed.new(:conflict, :conflict)
+    Raptor.should_receive(:log).with(/Injection Name Conflict/)
+    Raptor.should_receive(:log)
+    def method_taking_request(rack_request); rack_request; end
+    request = stub
+    method = method(:method_taking_request)
+    with_conflicts = Raptor::Injector.new([conflict, conflict])
+    injector_with_request = with_conflicts.add_request(request)
+    injector_with_request.call(method)
+  end
+
   context "custom injectables" do
     before do
       module WithInjectables

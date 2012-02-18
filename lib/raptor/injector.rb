@@ -12,7 +12,12 @@ module Raptor
       # Merge all injectables' sources into a single hash
       @sources ||= @injectables.map do |injectable|
         injectable.sources(self)
-      end.inject(&:merge)
+      end.inject do |memo, obj|
+        memo.merge(obj) do |key, old, new|
+          Raptor.log("Injection Name Conflict: #{key} is in multiple sources")
+          new
+        end
+      end
     end
 
     def call(method)
