@@ -37,7 +37,7 @@ describe Raptor::App do
   end
 
   it "routes to resources" do
-    File.stub(:new).with("views/post/index.html.erb").
+    File.stub(:new).with("views/post/index.html.mustache").
       and_return(stub(:read => "Template content"))
     env = env('GET', '/post')
     app.call(env).body.join('').strip.should == "Template content"

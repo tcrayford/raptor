@@ -1,4 +1,4 @@
-require "erb"
+require "mustache"
 
 module Raptor
   class PlaintextResponder
@@ -60,7 +60,7 @@ module Raptor
     end
 
     def template_path
-      "#{@template_path}.html.erb"
+      "#{@template_path}.html.mustache"
     end
 
     def create_presenter(subject, injector)
@@ -95,7 +95,8 @@ module Raptor
     end
   end
 
-  class Template
+  class Template < Mustache
+    @raise_on_context_miss = true
     def initialize(presenter, template_path)
       @presenter = presenter
       @template_path = template_path
@@ -105,18 +106,22 @@ module Raptor
       new(presenter, template_path).render
     end
 
-    def render
-      template.result(@presenter.instance_eval { binding })
-    end
-
     def template
-      ERB.new(File.new(full_template_path).read)
+      File.new(full_template_path).read
     end
 
     def full_template_path
       template_path = @template_path
       template_path = "/#{template_path}" unless template_path =~ /^\//
       "views#{template_path}"
+    end
+
+    def method_missing(method_name, *args, &block)
+      @presenter.send(method_name)
+    end
+
+    def respond_to?(method_name)
+      @presenter.respond_to?(method_name)
     end
   end
 end

@@ -43,7 +43,7 @@ describe Raptor::ActionTemplateResponder do
     record = stub
     route = stub
     injector = Raptor::Injector.new([])
-    Raptor::Template.stub(:render).with(PostPresenter.new, "posts/show.html.erb").
+    Raptor::Template.stub(:render).with(PostPresenter.new, "posts/show.html.mustache").
       and_return("it worked")
     response = responder.respond(route, record, injector)
     response.body.join.strip.should == "it worked"
