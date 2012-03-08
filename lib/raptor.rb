@@ -39,7 +39,7 @@ module Raptor
   end
 
   def self.log(text)
-    puts "Raptor: #{text}" if ENV['RAPTOR_LOGGING']
+    puts "Raptor: #{text}" if ENV['RAPTOR_LOGGING'] || ENV['RAPTOR_LOG_ME_HARDER'] || ENV['CLEVER_GIRL']
   end
 end
 
