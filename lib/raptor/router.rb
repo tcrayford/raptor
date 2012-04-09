@@ -111,6 +111,8 @@ module Raptor
     end
   end
 
+  class BadRouteSyntax < RuntimeError; end
+
   class BuildsRoutes
     include StandardRoutes
 
@@ -160,6 +162,8 @@ module Raptor
       when 3
         {:to => params[0],
           :with => params[1]}.merge(params.last)
+      else
+        raise BadRouteSyntax.new("You gave more than three arguments to a route: #{params.inspect}, which is invalid syntax")
       end
     end
 
