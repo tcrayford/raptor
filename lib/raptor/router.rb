@@ -43,63 +43,71 @@ module Raptor
   end
 
   module StandardRoutes
-    def root(params={})
-      route(:root, "GET", "/", params)
+    def root(*params)
+      options = options(params)
+      route(:root, "GET", "/", options)
     end
 
-    def show(params={})
+    def show(*params)
+      options = options(params)
       route(:show, "GET", "/:id",
             {:present => default_single_presenter,
-              :to => delegate(params),
-              :with => :find_by_id}.merge(params))
+              :to => delegate(options),
+              :with => :find_by_id}.merge(options))
     end
 
-    def new(params={})
+    def new(*params)
+      options = options(params)
       route(:new, "GET", "/new",
             {:present => default_single_presenter,
-              :to => delegate(params),
-             :with => :new}.merge(params))
+              :to => delegate(options),
+             :with => :new}.merge(options))
     end
 
-    def index(params={})
+    def index(*params)
+      options = options(params)
       route(:index, "GET", "/",
             {:present => default_list_presenter,
-              :to => delegate(params),
-              :with => :all}.merge(params))
+              :to => delegate(options),
+              :with => :all}.merge(options))
     end
 
-    def create(params={})
+    def create(*params)
+      options = options(params)
       route(:create, "POST", "/",
             {:redirect => :show,
              ValidationError => :new,
-              :to => delegate(params),
-              :with => :create}.merge(params))
+              :to => delegate(options),
+              :with => :create}.merge(options))
     end
 
-    def edit(params={})
+    def edit(*params)
+      options = options(params)
       route(:edit, "GET", "/:id/edit",
             {:present => default_single_presenter,
-              :to => delegate(params),
-              :with => :find_by_id}.merge(params))
+              :to => delegate(options),
+              :with => :find_by_id}.merge(options))
     end
 
-    def update(params={})
+    def update(*params)
+      options = options(params)
       route(:update, "PUT", "/:id",
             {:redirect => :show,
              ValidationError => :edit,
-              :to => delegate(params),
-              :with => :find_and_update}.merge(params))
+              :to => delegate(options),
+              :with => :find_and_update}.merge(options))
     end
 
-    def destroy(params={})
+    def destroy(*params)
+      options = options(params)
       route(:destroy, "DELETE", "/:id",
             {:redirect => :index,
-              :to => delegate(params),
-              :with => :destroy}.merge(params))
+              :to => delegate(options),
+              :with => :destroy}.merge(options))
     end
 
-    def delegate(params)
-      params[:to] || record_module
+    def delegate(options)
+      options[:to] || record_module
     end
   end
 
@@ -140,13 +148,29 @@ module Raptor
       @app.const_get(:Records).const_get(records_name)
     end
 
-    def route(action, http_method, path, params={})
+    def options(params)
+      case params.length
+      when 0
+        {}
+      when 1
+        params.last
+      when 2
+        {:to => params[0],
+          :with => params[1]}
+      when 3
+        {:to => params[0],
+          :with => params[1]}.merge(params.last)
+      end
+    end
+
+    def route(action, http_method, path, *params)
+      options = options(params)
       path = @parent_path + path
-      Raptor::ValidatesRoutes.validate_route_params!(params)
-      params = params.merge(:action => action,
+      Raptor::ValidatesRoutes.validate_route_params!(options)
+      options = options.merge(:action => action,
                             :http_method => http_method,
                             :path => path)
-      route = Route.for_app(@app, @parent_path, params)
+      route = Route.for_app(@app, @parent_path, options)
       @routes << route
       route
     end

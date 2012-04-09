@@ -44,11 +44,11 @@ module RouterTestApp
       new;show;index;create;edit;update;destroy
     end
     path "post_with_redirect" do
-      new :to => RouterTestApp::Records::Post,
-        :with => :new,
+      new RouterTestApp::Records::Post,
+        :new,
         :redirect => :index
-      index :to => RouterTestApp::Records::Post,
-        :with => :new
+      index RouterTestApp::Records::Post,
+        :new
     end
   end
 end

@@ -7,7 +7,7 @@ describe Raptor::App, "integrated" do
     module AwesomeSite
       App = Raptor::App.new(self) do
         path 'post' do
-          index :to => Object, :with => :new
+          index Object, :new
         end
       end
 
