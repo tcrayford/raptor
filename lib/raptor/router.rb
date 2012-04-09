@@ -50,45 +50,56 @@ module Raptor
     def show(params={})
       route(:show, "GET", "/:id",
             {:present => default_single_presenter,
-             :to => "#{record_module}.find_by_id"}.merge(params))
+              :to => delegate(params),
+              :with => :find_by_id}.merge(params))
     end
 
     def new(params={})
       route(:new, "GET", "/new",
             {:present => default_single_presenter,
-             :to => "#{record_module}.new"}.merge(params))
+              :to => delegate(params),
+             :with => :new}.merge(params))
     end
 
     def index(params={})
       route(:index, "GET", "/",
             {:present => default_list_presenter,
-             :to => "#{record_module}.all"}.merge(params))
+              :to => delegate(params),
+              :with => :all}.merge(params))
     end
 
     def create(params={})
       route(:create, "POST", "/",
             {:redirect => :show,
              ValidationError => :new,
-             :to => "#{record_module}.create"}.merge(params))
+              :to => delegate(params),
+              :with => :create}.merge(params))
     end
 
     def edit(params={})
       route(:edit, "GET", "/:id/edit",
             {:present => default_single_presenter,
-             :to => "#{record_module}.find_by_id"}.merge(params))
+              :to => delegate(params),
+              :with => :find_by_id}.merge(params))
     end
 
     def update(params={})
       route(:update, "PUT", "/:id",
             {:redirect => :show,
              ValidationError => :edit,
-             :to => "#{record_module}.find_and_update"}.merge(params))
+              :to => delegate(params),
+              :with => :find_and_update}.merge(params))
     end
 
     def destroy(params={})
       route(:destroy, "DELETE", "/:id",
             {:redirect => :index,
-             :to => "#{record_module}.destroy"}.merge(params))
+              :to => delegate(params),
+              :with => :destroy}.merge(params))
+    end
+
+    def delegate(params)
+      params[:to] || record_module
     end
   end
 
@@ -125,7 +136,8 @@ module Raptor
     end
 
     def record_module
-      "Records::#{Raptor::Util.camel_case(last_parent_path_component)}"
+      records_name = Raptor::Util.camel_case(last_parent_path_component)
+      @app.const_get(:Records).const_get(records_name)
     end
 
     def route(action, http_method, path, params={})
@@ -143,8 +155,6 @@ module Raptor
   class CantInferModulePathsForRootRoutes < RuntimeError; end
 
   class RouteOptions
-    NULL_DELEGATE_NAME = "Raptor::NullDelegate.do_nothing"
-
     def initialize(app, parent_path, params)
       @app = app
       @parent_path = parent_path
@@ -156,8 +166,9 @@ module Raptor
     def path; @params.fetch(:path); end
 
     def delegator
-      delegate_name = @params.fetch(:to, NULL_DELEGATE_NAME)
-      Raptor::Delegator.new(@app, delegate_name)
+      delegate = @params.fetch(:to, Raptor::NullDelegate)
+      method_name = @params.fetch(:with, :do_nothing)
+      Raptor::Delegator.new(delegate, method_name)
     end
 
     def exception_actions

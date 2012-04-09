@@ -32,6 +32,10 @@ module Raptor
       ]
     end
 
+    def const_get(name)
+      @app_module.const_get(name)
+    end
+
     def injectables
       return [] unless @app_module.const_defined?(:Injectables)
       injectables = @app_module::Injectables

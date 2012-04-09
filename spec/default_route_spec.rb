@@ -41,12 +41,14 @@ module RouterTestApp
 
   App = Raptor::App.new(self) do
     path "post" do
-      new; show; index; create; edit; update; destroy
+      new;show;index;create;edit;update;destroy
     end
     path "post_with_redirect" do
-      new :to => "RouterTestApp::Records::Post.new",
+      new :to => RouterTestApp::Records::Post,
+        :with => :new,
         :redirect => :index
-      index
+      index :to => RouterTestApp::Records::Post,
+        :with => :new
     end
   end
 end

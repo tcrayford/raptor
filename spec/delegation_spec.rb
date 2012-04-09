@@ -2,36 +2,21 @@ require "rack"
 require_relative "spec_helper"
 require_relative "../lib/raptor"
 
-describe Raptor::DelegateFinder do
-  module AModule
-    module Child
-      def self.a_method
-      end
-    end
-  end
-
-  it "finds constants in the module" do
-    method = Raptor::DelegateFinder.new(AModule, "Child.a_method").find
-    method.should == AModule::Child.method(:a_method)
-  end
-
-  it "finds constants not in the module" do
-    method = Raptor::DelegateFinder.new(AModule, "Object.new").find
-    method.should == Object.method(:new)
-  end
-end
-
 describe Raptor::Delegator do
+  let(:injector) { Raptor::Injector.new([]) }
+
   it "returns nil if the delegate is nil" do
-    injector = Raptor::Injector.new([])
-    delegator = Raptor::Delegator.new(AModule, nil)
+    delegator = Raptor::Delegator.new(nil, :new)
+    delegator.delegate(injector).should be_nil
+  end
+
+  it "returns nil if the method is nil" do
+    delegator = Raptor::Delegator.new('not nil', nil)
     delegator.delegate(injector).should be_nil
   end
 
   it "calls the named method" do
-    app = Raptor::App.new(Object) {}
-    delegator = Raptor::Delegator.new(app, "Hash.new")
-    injector = Raptor::Injector.new([])
+    delegator = Raptor::Delegator.new(Hash, :new)
     delegator.delegate(injector).should == {}
   end
 end

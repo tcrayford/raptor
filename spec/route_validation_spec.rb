@@ -30,29 +30,6 @@ describe "route validation" do
       empty_params = params
       Raptor::ValidatesRoutes.validate_route_params!(empty_params)
     end
-
-    describe 'validating delegate names' do
-      it "rejects routes who only specify a class" do
-        specified_delegate_class = params(:to => 'OnlyClass')
-        expect do
-          Raptor::ValidatesRoutes.validate_route_params!(specified_delegate_class)
-        end.to raise_error(Raptor::BadDelegate, 'OnlyClass is not a good delegate name')
-      end
-
-      it "allows routes that specify a delegate with #" do
-        specified_delegate_class = params(:to => 'GoodDelegate#instance_method')
-        expect do
-          Raptor::ValidatesRoutes.validate_route_params!(specified_delegate_class)
-        end.to_not raise_error(Raptor::BadDelegate)
-      end
-
-      it "allows routes that specify a delegate with ." do
-        specified_delegate_class = params(:to => 'GoodDelegate.class_method')
-        expect do
-          Raptor::ValidatesRoutes.validate_route_params!(specified_delegate_class)
-        end.to_not raise_error(Raptor::BadDelegate)
-      end
-    end
   end
 
   it "gives a reasonable error if there's no presenter in the params"
