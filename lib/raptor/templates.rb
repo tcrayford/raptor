@@ -42,15 +42,15 @@ module Raptor
   class ViewContext
     def initialize(presenter)
       @presenter = presenter
-      @content_areas = {}
+      @content_areas = Hash.new([])
     end
 
     def content_for(name, &block)
-      @content_areas[name] = block[]
+      @content_areas[name] << block[]
     end
 
     def yield_content_for(name)
-      @content_areas[name]
+      @content_areas[name].join
     end
 
     def method_missing(message, *args, &block)

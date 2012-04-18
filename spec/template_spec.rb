@@ -65,6 +65,13 @@ describe Raptor::ViewContext do
     end
     context.yield_content_for(:head).should == "what"
   end
+
+  it "can store many content_for under the same key" do
+    context = Raptor::ViewContext.new(stub)
+    context.content_for(:head) { "what" }
+    context.content_for(:head) { "what" }
+    context.yield_content_for(:head).should == "whatwhat"
+  end
 end
 
 describe Raptor::FindsLayouts do
