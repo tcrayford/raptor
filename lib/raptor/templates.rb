@@ -34,11 +34,32 @@ module Raptor
     end
 
     def render(inner)
-      Tilt.new(@path).render { inner.render }
+      inner_result = inner.render
+      Tilt.new(@path).render(inner.presenter) { inner_result }
+    end
+  end
+
+  class ViewContext
+    def initialize(presenter)
+      @presenter = presenter
+      @content_areas = {}
+    end
+
+    def content_for(name, &block)
+      @content_areas[name] = block[]
+    end
+
+    def yield_content_for(name)
+      @content_areas[name]
+    end
+
+    def method_missing(message, *args, &block)
+      @presenter.send(message, *args, &block)
     end
   end
 
   class Template
+    attr_reader :presenter
     def initialize(presenter, tilt)
       @presenter = presenter
       @tilt = tilt
@@ -51,7 +72,7 @@ module Raptor
     def self.from_path(presenter, template_path)
       path = full_template_path(template_path)
       tilt = Tilt.new(path)
-      new(presenter, tilt)
+      new(ViewContext.new(presenter), tilt)
     end
 
     def self.full_template_path(template_path)
