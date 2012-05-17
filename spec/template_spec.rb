@@ -65,8 +65,8 @@ describe Raptor::ViewContext do
   it "injects from the injector" do
     current_user = stub
     injector = Raptor::Injector.new([Raptor::Injectables::Fixed.new(:current_user, current_user)])
-    context = Raptor::ViewContext.new(stub, injector)
-    context.inject(:current_user).should == current_user
+    context = Raptor::ViewContext.new(Object.new, injector)
+    context.current_user.should == current_user
   end
 end
 

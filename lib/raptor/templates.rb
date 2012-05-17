@@ -59,13 +59,13 @@ module Raptor
       end
     end
 
-    def inject(name)
-      ::Raptor.log("Injecting #{name.inspect} into view")
-      @injector.inject_name(name)
-    end
-
     def method_missing(name, *args, &block)
-      @presenter.send(name, *args, &block)
+      begin
+        @presenter.send(name, *args, &block)
+      rescue ::NoMethodError => e
+        ::Raptor.log("Injecting #{name.inspect} into view")
+        @injector.inject_name(name)
+      end
     end
   end
 
