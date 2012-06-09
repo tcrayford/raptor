@@ -7,6 +7,7 @@ module Raptor
 
     def self.build(app, &block)
       routes = BuildsRoutes.new(app).build(&block)
+      RouteLogger.log(routes)
       new(app, routes)
     end
 
@@ -39,6 +40,15 @@ module Raptor
 
     def route_named(action_name)
       @routes.find { |route| route.name == action_name }
+    end
+  end
+
+  class RouteLogger
+    def self.log(routes)
+      Raptor.log("Starting with the following routes:")
+      routes.each do |route|
+        Raptor.log("#{route.path} #{route.name}")
+      end
     end
   end
 
